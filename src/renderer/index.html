@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Token Consume</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <div class="aurora" aria-hidden="true">
+        <span class="aurora-a"></span>
+        <span class="aurora-b"></span>
+        <span class="aurora-c"></span>
+      </div>
+
+      <header class="titlebar drag-region">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">TC</span>
+          <div class="brand-text">
+            <strong>Token Consume</strong>
+            <em>AI 用量与花费计量</em>
+          </div>
+        </div>
+        <div class="titlebar-actions no-drag">
+          <span class="status-pill" id="proxyPill" title="本地代理状态">
+            <i class="dot" id="proxyDot"></i>
+            <span id="proxyStatusText">代理启动中</span>
+          </span>
+          <button class="icon-button" id="pinButton" title="窗口置顶" aria-label="窗口置顶">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 4h6l-1 6 4 4v2h-5v4l-1 2-1-2v-4H6v-2l4-4-1-6Z" />
+            </svg>
+          </button>
+          <button class="icon-button" id="minimizeButton" title="最小化" aria-label="最小化">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+          </button>
+          <button class="icon-button danger-hover" id="closeButton" title="隐藏窗口" aria-label="隐藏窗口">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="view" id="dashboardView">
+        <section class="hero">
+          <div class="hero-main">
+            <span class="label">今日消耗 Tokens</span>
+            <strong class="hero-value" id="todayTokens">0</strong>
+            <span class="hero-date" id="todayDate">----</span>
+          </div>
+          <div class="hero-side">
+            <span class="label">今日花费（估算）</span>
+            <strong class="hero-cost" id="todayCost">¥0.00</strong>
+            <div class="budget">
+              <div class="budget-track"><span class="budget-fill" id="budgetBar"></span></div>
+              <span class="budget-text" id="budgetText">预算 ¥10.00 · 0%</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="stat-grid">
+          <article class="stat-card">
+            <span>请求数</span>
+            <strong id="statRequests">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>输入 Tokens</span>
+            <strong id="statInput">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>输出 Tokens</span>
+            <strong id="statOutput">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>估算记录</span>
+            <strong id="statEstimated">0</strong>
+          </article>
+        </section>
+
+        <section class="panels">
+          <article class="panel chart-panel">
+            <header class="panel-head">
+              <h2>近 7 天</h2>
+              <span id="weekTotal">0 tokens</span>
+            </header>
+            <div class="chart" id="weekChart" role="img" aria-label="近 7 天 token 用量柱状图"></div>
+          </article>
+
+          <article class="panel models-panel">
+            <header class="panel-head">
+              <h2>模型分布</h2>
+              <span id="modelCount">0 个</span>
+            </header>
+            <ul class="model-list" id="modelList">
+              <li class="empty">暂无调用记录</li>
+            </ul>
+          </article>
+        </section>
+
+        <article class="panel platform-panel" id="platformPanel">
+          <header class="panel-head">
+            <h2>官方用量页读数 <em class="tag">实验性</em></h2>
+            <button class="ghost-button" id="platformSyncButton" type="button">立即同步</button>
+          </header>
+          <div class="platform-body">
+            <div>
+              <span>读数 Tokens</span>
+              <strong id="platformTokens">—</strong>
+            </div>
+            <div>
+              <span>读数花费</span>
+              <strong id="platformCost">—</strong>
+            </div>
+            <div>
+              <span>采集时间</span>
+              <strong id="platformTime">尚未同步</strong>
+            </div>
+          </div>
+          <p class="hint" id="platformNote">
+            登录厂商官方页面后读取页面数字，仅作对照展示，不计入本地账本。
+          </p>
+        </article>
+      </section>
+
+      <section class="view" id="settingsView" hidden>
+        <header class="settings-head">
+          <div>
+            <span class="label">Preferences</span>
+            <h1>设置</h1>
+          </div>
+          <button class="ghost-button" id="settingsBackButton" type="button">返回</button>
+        </header>
+
+        <form id="settingsForm" class="settings-form">
+          <fieldset>
+            <legend>计量</legend>
+            <label class="field">
+              <span>AI 厂商</span>
+              <select id="providerInput"></select>
+            </label>
+            <p class="hint" id="providerHint"></p>
+            <div class="field-row">
+              <label class="field">
+                <span>本地代理端口</span>
+                <input id="portInput" type="number" min="1024" max="65535" step="1" />
+              </label>
+              <label class="field">
+                <span>今日预算（元）</span>
+                <input id="budgetInput" type="number" min="0" step="0.01" />
+              </label>
+            </div>
+            <label class="switch">
+              <input id="alwaysOnTopInput" type="checkbox" />
+              <span>窗口保持置顶</span>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>官方用量页同步 <em class="tag">实验性</em></legend>
+            <label class="switch">
+              <input id="platformEnabledInput" type="checkbox" />
+              <span>启用定时同步</span>
+            </label>
+            <label class="field">
+              <span>同步间隔</span>
+              <select id="intervalInput">
+                <option value="30">每 30 秒</option>
+                <option value="60">每 1 分钟</option>
+                <option value="300">每 5 分钟</option>
+                <option value="900">每 15 分钟</option>
+                <option value="1800">每 30 分钟</option>
+              </select>
+            </label>
+            <div class="button-row">
+              <button type="button" id="openLoginButton">打开登录页</button>
+              <button type="button" id="syncNowButton">立即同步</button>
+            </div>
+            <p class="hint">
+              登录发生在厂商官方页面，账号密码不经过本应用。页面改版可能导致读取失败，此时请使用代理计量。
+            </p>
+          </fieldset>
+
+          <fieldset>
+            <legend>数据</legend>
+            <div class="button-row">
+              <button type="button" id="openDataButton">打开数据目录</button>
+              <button type="button" id="resetTodayButton">重置今日</button>
+              <button type="button" id="resetAllButton" class="danger">清空账本</button>
+            </div>
+          </fieldset>
+
+          <div class="button-row sticky">
+            <button type="submit" class="primary" id="saveButton">保存设置</button>
+          </div>
+
+          <p class="hint about" id="aboutLine">Token Consume · MIT License</p>
+        </form>
+      </section>
+
+      <footer class="statusbar">
+        <span class="chip" id="providerChip">DeepSeek</span>
+        <span class="mono" id="clock">--:--:--</span>
+        <span class="spacer"></span>
+        <button class="link-button mono" id="copyProxyButton" type="button" title="复制代理地址">
+          http://127.0.0.1:17862/v1
+        </button>
+        <button class="icon-button" id="settingsButton" title="设置" aria-label="设置">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6h.01A1.7 1.7 0 0 0 10.04 3V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.01c.26.64.88 1.03 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z" />
+          </svg>
+        </button>
+      </footer>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

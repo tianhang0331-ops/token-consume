@@ -1,0 +1,64 @@
+{
+  "name": "token-consume",
+  "productName": "Token Consume",
+  "version": "1.0.0",
+  "description": "Local-first desktop meter for AI token usage and spend, with a transparent OpenAI / Anthropic / Gemini compatible proxy.",
+  "author": "Token Consume Contributors",
+  "license": "MIT",
+  "private": false,
+  "main": "src/main/main.js",
+  "keywords": [
+    "electron",
+    "llm",
+    "tokens",
+    "cost",
+    "usage",
+    "openai",
+    "anthropic",
+    "gemini",
+    "deepseek",
+    "dashboard"
+  ],
+  "scripts": {
+    "prepare": "node scripts/make-icon.js",
+    "start": "electron .",
+    "test": "node --test",
+    "check": "node scripts/check.js",
+    "icon": "node scripts/make-icon.js",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.tokenconsume.app",
+    "productName": "Token Consume",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "assets/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.png",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    }
+  }
+}
