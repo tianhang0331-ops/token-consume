@@ -30,7 +30,7 @@ Token Consume 是一个开源、无账号、无云同步的 Electron 桌面应�
 环境要求：Node.js 18+（推荐 20+）。
 
 ```bash
-git clone https://github.com/PrimaryProgrammer123/token-consume.git
+git clone https://github.com/tianhang0331-ops/token-consume.git
 cd token-consume
 npm install
 npm start
